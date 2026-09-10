@@ -1,0 +1,66 @@
+const footerLinks = {
+  Explore: [
+    { label: 'Home', href: '#home' },
+    { label: 'Our menu', href: '#menu' },
+    { label: 'Offers', href: '#offers' },
+  ],
+  Company: [
+    { label: 'About us', href: '#about' },
+    { label: 'Contact', href: '#contact' },
+    { label: 'Careers', href: '#careers' },
+  ],
+  Support: [
+    { label: 'Help center', href: '#help' },
+    { label: 'Track order', href: '#track-order' },
+    { label: 'Terms & privacy', href: '#terms' },
+  ],
+}
+
+function Footer() {
+  return (
+    <footer className='bg-orange-950 text-orange-50'>
+      <div className='mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] lg:px-8'>
+        <div>
+          <a href='#home' className='flex items-center gap-3' aria-label='Bhoj Express home'>
+            <img
+              src='/bhojExpress(1).jpg'
+              alt='Bhoj Express logo'
+              className='h-12 w-12 rounded-full object-cover ring-2 ring-orange-400'
+            />
+            <span className='text-xl font-bold tracking-tight text-white'>Bhoj Express</span>
+          </a>
+          <p className='mt-5 max-w-xs text-sm leading-6 text-orange-200'>
+            Fresh, flavorful meals delivered to your door with a little extra warmth in every order.
+          </p>
+          <a href='mailto:hello@bhojexpress.com' className='mt-5 inline-block text-sm font-semibold text-orange-300 hover:text-white'>
+            hello@bhojexpress.com
+          </a>
+        </div>
+
+        {Object.entries(footerLinks).map(([title, links]) => (
+          <div key={title}>
+            <h2 className='text-sm font-bold uppercase tracking-wider text-orange-300'>{title}</h2>
+            <ul className='mt-4 space-y-3'>
+              {links.map((link) => (
+                <li key={link.label}>
+                  <a href={link.href} className='text-sm text-orange-100 transition-colors hover:text-white'>
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div className='border-t border-orange-900'>
+        <div className='mx-auto flex max-w-7xl flex-col gap-2 px-5 py-5 text-xs text-orange-300 sm:flex-row sm:items-center sm:justify-between lg:px-8'>
+          <p>&copy; 2026 Bhoj Express. All rights reserved.</p>
+          <p>Made for food lovers, delivered with care.</p>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+export default Footer
