@@ -1,38 +1,44 @@
+import { Link } from 'react-router-dom'
+
 const footerLinks = {
   Explore: [
-    { label: 'Home', href: '#home' },
-    { label: 'Our menu', href: '#menu' },
-    { label: 'Offers', href: '#offers' },
+    { label: 'Home', href: '/' },
+    { label: 'Our menu', href: '/menu' },
+    { label: 'Offers', href: '/offers' },
   ],
   Company: [
-    { label: 'About us', href: '#about' },
-    { label: 'Contact', href: '#contact' },
-    { label: 'Careers', href: '#careers' },
+    { label: 'About us', href: '/about' },
+    { label: 'Contact', href: '/contact' },
+    { label: 'Careers', href: '/login' },
   ],
   Support: [
-    { label: 'Help center', href: '#help' },
-    { label: 'Track order', href: '#track-order' },
-    { label: 'Terms & privacy', href: '#terms' },
+    { label: 'Help center', href: '/contact' },
+    { label: 'Track order', href: '/cart' },
+    { label: 'Terms & privacy', href: '/about' },
   ],
 }
 
 function Footer() {
+  const scrollToTop = () => window.scroll(0, 0)
+
   return (
     <footer className='bg-orange-950 text-orange-50'>
       <div className='mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr] lg:px-8'>
         <div>
-          <a href='#home' className='flex items-center gap-3' aria-label='Bhoj Express home'>
-            <img
-              src='/bhojExpress(1).jpg'
-              alt='Bhoj Express logo'
-              className='h-12 w-12 rounded-full object-cover ring-2 ring-orange-400'
-            />
+          <Link to='/' onClick={scrollToTop} className='flex items-center gap-3' aria-label='Bhoj Express home'>
+            <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-orange-400'>
+              <img
+                src='/bhojExpress(1).jpg'
+                alt='Bhoj Express logo'
+                className='h-full w-full rounded-full object-contain'
+              />
+            </div>
             <span className='text-xl font-bold tracking-tight text-white'>Bhoj Express</span>
-          </a>
+          </Link>
           <p className='mt-5 max-w-xs text-sm leading-6 text-orange-200'>
             Fresh, flavorful meals delivered to your door with a little extra warmth in every order.
           </p>
-          <a href='mailto:hello@bhojexpress.com' className='mt-5 inline-block text-sm font-semibold text-orange-300 hover:text-white'>
+          <a href='mailto:hello@bhojexpress.com' onClick={scrollToTop} className='mt-5 inline-block text-sm font-semibold text-orange-300 hover:text-white'>
             hello@bhojexpress.com
           </a>
         </div>
@@ -43,9 +49,9 @@ function Footer() {
             <ul className='mt-4 space-y-3'>
               {links.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className='text-sm text-orange-100 transition-colors hover:text-white'>
+                  <Link to={link.href} onClick={scrollToTop} className='text-sm text-orange-100 transition-colors hover:text-white'>
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

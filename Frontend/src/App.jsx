@@ -1,52 +1,73 @@
-import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
-import Footer from './Components/footer.jsx'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import axios from 'axios'
+import { Outlet } from 'react-router-dom'
+
+import AdminLayout from './admin/AdminLayout.jsx'
+import Dashboard from './admin/Dashboard.jsx'
+import Orders from './admin/Orders.jsx'
+import Products from './admin/Products.jsx'
+import Users from './admin/Users.jsx'
+import AddProduct from './admin/AddProduct.jsx'
+import NotFound from './admin/NotFound.jsx'
 import Navbar from './Components/navbar.jsx'
+import Footer from './Components/footer.jsx'
 import About from './pages/About.jsx'
 import Cart from './pages/Cart.jsx'
 import Contact from './pages/Contact.jsx'
 import Home from './pages/Home.jsx'
-import Login from './pages/Login.jsx'
+import Login from './auth/Login.jsx'
 import Menu from './pages/Menu.jsx'
+import FoodDetails from './pages/FoodDetails.jsx'
 import Offers from './pages/Offers.jsx'
-import Register from './pages/Register.jsx'
+import Register from './auth/Register.jsx'
 
-function RoutedPage() {
-  const navigate = useNavigate()
-  const goHome = () => navigate('/')
+import Profile from './pages/Profile.jsx'
+import { CartProvider } from './context/CartContext.jsx'
 
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+
+function MainLayout() {
   return (
-    <main className='min-h-screen bg-orange-50'>
+    <>
       <Navbar />
-      <div className='route-view'>
-        <Routes>
-          <Route path='/' element={<><Home /><Footer /></>} />
-          <Route path='/menu' element={<><Menu /><Footer /></>} />
-          <Route path='/offers' element={<><Offers /><Footer /></>} />
-          <Route path='/about' element={<><About onHome={goHome} onContact={() => navigate('/contact')} /><Footer /></>} />
-          <Route path='/contact' element={<><Contact onHome={goHome} /><Footer /></>} />
-          <Route path='/cart' element={<Cart />} />
-          <Route path='/login' element={<Login onHome={goHome} onRegister={() => navigate('/register')} />} />
-          <Route path='/register' element={<Register onHome={goHome} onLogin={() => navigate('/login')} />} />
-        </Routes>
-      </div>
-    </main>
-  )
+
+      <Outlet />
+
+      <Footer />
+    </>
+  );
 }
+
 
 function App() {
   return (
-    <BrowserRouter>
-      <Toaster
-        position='top-right'
-        toastOptions={{
-          duration: 4000,
-          style: { borderRadius: '14px', fontFamily: 'DM Sans, sans-serif' },
-          success: { iconTheme: { primary: '#ea580c', secondary: '#fff7ed' } },
-        }}
-      />
-      <RoutedPage />
-    </BrowserRouter>
+    <CartProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<MainLayout />}>
+            <Route path='/' element={<Home />} />
+            <Route path='/menu' element={<Menu />} />
+            <Route path='/menu/:dishName' element={<FoodDetails />} />
+            <Route path='/offers' element={<Offers />} />
+            <Route path='/contact' element={<Contact />} />
+            <Route path='/about' element={<About />} />
+            <Route path='/cart' element={<Cart />} />
+            <Route path='/login' element={<Login />} />
+            <Route path='/register' element={<Register />} />
+            <Route path='/profile' element={<Profile />} />
+          </Route>
+          <Route path='/admin' element={<AdminLayout />}>
+            <Route index element={<Navigate to='dashboard' replace />} />
+            <Route path='dashboard' element={<Dashboard />} />
+            <Route path='products' element={<Products />} />
+            <Route path='products/add' element={<AddProduct />} />
+            <Route path='orders' element={<Orders />} />
+            <Route path='users' element={<Users />} />
+            <Route path='*' element={<NotFound />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </CartProvider>
   )
 }
 
