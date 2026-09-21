@@ -1,10 +1,23 @@
-const users = [
-  { name: 'Aarav Sharma', email: 'aarav@gmail.com', role: 'Customer' },
-  { name: 'Maya Thompson', email: 'maya@gmail.com', role: 'Customer' },
-  { name: 'Riya Sharma', email: 'riya@bhojexpress.com', role: 'Admin' },
-]
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import toast from 'react-hot-toast'
 
 function Users() {
+  const [users, setUsers] = useState([])
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get('/api/users', { withCredentials: true })
+        setUsers(response.data.users || [])
+      } catch (error) {
+        toast.error('Failed to fetch users')
+        console.error('Error fetching users:', error)
+      }
+    }
+    fetchUsers()
+  }, [])
+
   return (
     <div className='rounded-3xl border border-orange-100 bg-white p-6 shadow-sm'>
       <div className='mb-6'>
@@ -18,10 +31,11 @@ function Users() {
             <div className='flex items-center gap-3'>
               <div className='flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-sm font-black text-white'>
                 {user.name
-                  .split(' ')
+                  ?.split(' ')
                   .map((part) => part[0])
                   .join('')
-                  .slice(0, 2)}
+                  .slice(0, 2)
+                  .toUpperCase()}
               </div>
               <div>
                 <p className='font-black text-orange-950'>{user.name}</p>

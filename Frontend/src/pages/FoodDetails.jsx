@@ -1,95 +1,129 @@
 import { useState } from 'react'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import useCart from '../context/useCart.js'
 
-const dishes = [
-  ['Tandoori Butter Bowl', 'Charred paneer, makhani sauce, basmati rice', 'रु 1,806', '🍲', 'A rich, comforting bowl with creamy makhani sauce, smoky paneer, and fragrant basmati rice. Perfect for a cozy, indulgent meal.'],
-  ['Crispy Masala Wrap', 'Spiced potato, fresh slaw, mint chutney', 'रु 1,330', '🌯', 'Loaded with crisp vegetables and warm masala potato, this wrap is crunchy, fresh, and packed with bold flavors.'],
-  ['Mango Cloud Lassi', 'Alphonso mango, yogurt, cardamom', 'रु 735', '🥭', 'A cooling, creamy mango lassi blended with cardamom for a sweet and refreshing sip.'],
-  ['Ginger Garlic Noodles', 'Wok-tossed vegetables, sesame, chili oil', 'रु 1,645', '🍜', 'Slurp-worthy noodles tossed with ginger, garlic, vegetables, and a touch of chili oil for a savory finish.'],
-  ['Saffron Kheer', 'Rice pudding, pistachio, rose petals', 'रु 840', '🍮', 'Soft, creamy, and aromatic, this dessert brings the warmth of saffron and the elegance of rose petals.'],
-  ['Garden Chaat Bowl', 'Crisp chickpeas, herbs, tangy tamarind', 'रु 1,246', '🥗', 'A bright and crunchy bowl with a lively mix of herbs, chickpeas, and tangy tamarind dressing.'],
-]
-
 function FoodDetails() {
-  const { dishName } = useParams()
   const location = useLocation()
   const food = location.state?.food
   const { addToCart } = useCart()
   const [isAdded, setIsAdded] = useState(false)
 
-  const fallbackDish = dishes.find((dish) => {
-    const [name] = dish
-    return encodeURIComponent(name.toLowerCase().replace(/\s+/g, '-')) === dishName
-  })
-
-  if (!food && !fallbackDish) {
+  // If no food was passed in (e.g. user refreshed the page),
+  // fall back to a friendly "not found" screen.
+  if (!food) {
     return (
       <main className='min-h-screen bg-orange-50 px-5 py-16 text-orange-950 lg:px-8'>
         <div className='mx-auto max-w-3xl rounded-3xl border border-orange-200 bg-white p-10 text-center shadow-sm'>
-          <p className='text-sm font-bold uppercase tracking-[0.2em] text-orange-600'>Dish not found</p>
-          <h1 className='mt-4 text-3xl font-black'>This item is not on the menu.</h1>
-          <Link to='/menu' className='mt-6 inline-block rounded-full bg-orange-600 px-6 py-3 text-sm font-bold text-white hover:bg-orange-700'>Back to menu</Link>
+          <p className='text-sm font-bold uppercase tracking-[0.2em] text-orange-600'>
+            Dish not found
+          </p>
+          <h1 className='mt-4 text-3xl font-black'>
+            This item is not on the menu.
+          </h1>
+          <Link
+            to='/menu'
+            className='mt-6 inline-block rounded-full bg-orange-600 px-6 py-3 text-sm font-bold text-white hover:bg-orange-700'
+          >
+            Back to menu
+          </Link>
         </div>
       </main>
     )
   }
 
-  const [fallbackName, fallbackDescription, fallbackPrice, fallbackEmoji, fallbackDetails] = fallbackDish || []
-  const name = food?.name || fallbackName
-  const description = food?.description || fallbackDescription
-  const price = food ? `रु ${food.price.toLocaleString()}` : fallbackPrice
-  const details = food?.description || fallbackDetails
+  const name = food.name
+  const description = food.description
+  const price = `रु ${food.price.toLocaleString()}`
+  const details = food.description
 
   const handleAddToCart = () => {
     addToCart({
+      foodId: food._id,
       name,
       description,
       price,
-      image: food?.image,
-      emoji: fallbackEmoji || '🍽️',
+      image: food.image,
     })
     setIsAdded(true)
     window.setTimeout(() => setIsAdded(false), 1200)
   }
 
   return (
-    <main className='min-h-screen bg-orange-50 px-5 py-16 text-orange-950 lg:px-8'>
-      <div className='mx-auto max-w-6xl'>
-        <Link to='/menu' className='mb-6 inline-flex items-center gap-2 text-sm font-bold text-orange-700'>← Back to menu</Link>
+    <main className='min-h-screen bg-orange-50 px-5 py-10 text-orange-950 lg:px-8'>
+      <div className='mx-auto max-w-4xl'>
+        <Link
+          to='/menu'
+          className='mb-5 inline-flex items-center gap-2 text-sm font-bold text-orange-700 hover:text-orange-900'
+        >
+          ← Back to menu
+        </Link>
 
-        <div className='overflow-hidden rounded-[32px] border border-orange-200 bg-white shadow-[0_20px_60px_rgba(251,146,60,0.12)]'>
-          <div className='grid gap-0 md:grid-cols-2'>
-            <div className='flex min-h-[320px] items-center justify-center bg-gradient-to-br from-orange-200 via-amber-300 to-yellow-200 text-[120px] md:text-[180px]'>
-              {food?.image ? <img src={food.image} className='h-full min-h-[320px] w-full object-cover' alt={name} /> : fallbackEmoji}
+        <div className='overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-[0_10px_40px_rgba(251,146,60,0.10)]'>
+          <div className='grid gap-0 md:grid-cols-[0.85fr_1fr]'>
+            {/* LEFT — image */}
+            <div className='relative aspect-square overflow-hidden bg-gradient-to-br from-orange-200 via-amber-300 to-yellow-200'>
+              <img
+                src={food.image}
+                className='h-full w-full object-cover'
+                alt={name}
+              />
+              <span className='absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-orange-700 shadow-sm backdrop-blur'>
+                {food.category || 'Best seller'}
+              </span>
             </div>
 
-            <div className='p-7 sm:p-8 lg:p-10'>
-              <p className='text-sm font-bold uppercase tracking-[0.2em] text-orange-600'>Signature dish</p>
-              <h1 className='mt-3 text-3xl font-black sm:text-4xl'>{name}</h1>
+            {/* RIGHT — info */}
+            <div className='flex flex-col p-5 sm:p-6'>
+              <p className='text-[11px] font-bold uppercase tracking-[0.2em] text-orange-600'>
+                Signature dish
+              </p>
+              <h1 className='mt-1.5 text-2xl font-black leading-tight sm:text-3xl'>
+                {name}
+              </h1>
 
-              <div className='mt-5 flex items-center gap-3'>
-                <span className='rounded-full bg-orange-100 px-3 py-1 text-sm font-bold text-orange-700'>{food?.category || 'Best seller'}</span>
-                <span className='text-2xl font-black text-emerald-600'>{price}</span>
+              <div className='mt-3 flex items-center gap-3'>
+                <span className='rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-bold text-orange-700'>
+                  {food.category || 'Best seller'}
+                </span>
+                <span className='text-xl font-black text-emerald-600'>
+                  {price}
+                </span>
               </div>
 
-              <p className='mt-6 text-lg leading-8 text-orange-950/70'>{details}</p>
+              {/* Description — shown once */}
+              <p className='mt-4 text-sm leading-6 text-orange-950/70'>
+                {details}
+              </p>
 
-              <div className='mt-8 rounded-2xl border border-orange-100 bg-orange-50 p-4'>
-                <p className='text-sm font-bold uppercase tracking-[0.15em] text-orange-600'>Includes</p>
-                <p className='mt-2 text-base text-orange-950/70'>{description}</p>
-                {food?.preparationTime && <p className='mt-2 text-base text-orange-950/70'>Preparation time: {food.preparationTime}</p>}
+              {/* Quick facts */}
+              <div className='mt-4 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wide'>
+                <span className='rounded-full bg-orange-50 px-2.5 py-1 text-orange-700'>
+                  ⏱️ {food.preparationTime || '30 min'}
+                </span>
+                <span className='rounded-full bg-orange-50 px-2.5 py-1 text-orange-700'>
+                  🌿 Fresh
+                </span>
+                <span className='rounded-full bg-orange-50 px-2.5 py-1 text-orange-700'>
+                  🔥 Hot
+                </span>
               </div>
 
-              <div className='mt-8 flex flex-wrap gap-3'>
+              <div className='mt-6 flex flex-wrap gap-2.5'>
                 <button
                   type='button'
                   onClick={handleAddToCart}
-                  className={`rounded-full px-6 py-3 text-sm font-bold text-white transition ${isAdded ? 'bg-green-600' : 'bg-orange-600 hover:bg-orange-700'}`}
+                  className={`rounded-full px-5 py-2.5 text-sm font-bold text-white transition ${
+                    isAdded ? 'bg-green-600' : 'bg-orange-600 hover:bg-orange-700'
+                  }`}
                 >
-                  {isAdded ? 'Added to cart' : 'Add to order'}
+                  {isAdded ? 'Added ✓' : 'Add to order'}
                 </button>
-                <button type='button' className='rounded-full border border-orange-200 bg-white px-6 py-3 text-sm font-bold text-orange-700 transition hover:bg-orange-50'>Save item</button>
+                <button
+                  type='button'
+                  className='rounded-full border border-orange-200 bg-white px-5 py-2.5 text-sm font-bold text-orange-700 transition hover:bg-orange-50'
+                >
+                  ♡ Save
+                </button>
               </div>
             </div>
           </div>

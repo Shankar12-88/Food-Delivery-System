@@ -181,6 +181,19 @@ function Contact() {
 
           </section>
         </div>
+        <div className='mt-16'>
+          <h2 className='text-2xl font-black mb-6'>Find us here</h2>
+          <div className='w-full overflow-hidden rounded-[2.5rem] border border-orange-200 shadow-xl shadow-orange-950/5 h-[400px] md:h-[500px] bg-white'>
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2423.9303486174267!2d84.12753693530289!3d27.644898196285325!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39945044376c8489%3A0x7dc3b121e07eb13f!2sKawasoti%20Thana%20Chok%2C%20Kawasoti%2C%20Lumbini%20Province%2033000!5e1!3m2!1sen!2snp!4v1789969353851!5m2!1sen!2snp" 
+              className='w-full h-full'  
+              style={{ border: 0 }} 
+              allowFullScreen 
+              loading="lazy" 
+              referrerPolicy="strict-origin-when-cross-origin">
+            </iframe>
+          </div>
+        </div>
 
         <div className='pt-10 text-center'>
           <a href="/">

@@ -3,19 +3,28 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import useCart from '../context/useCart.js'
 
+const ITEMS_PER_PAGE = 8
 
 function Menu() {
   const [foods, setFoods] = useState([])
   const [ratings, setRatings] = useState({})
   const [sentItem, setSentItem] = useState('')
   const [isCategoryOpen, setIsCategoryOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
   const categoryRef = useRef(null)
   const [searchParams, setSearchParams] = useSearchParams()
   const { addToCart } = useCart()
   const selectedCategory = searchParams.get('category')
+
   const visibleFoods = selectedCategory
     ? foods.filter((food) => food.category?.trim().toLowerCase() === selectedCategory.trim().toLowerCase())
     : foods
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(visibleFoods.length / ITEMS_PER_PAGE))
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const paginatedFoods = visibleFoods.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
   const categories = [...new Map(foods
     .map((food) => food.category?.trim())
     .filter(Boolean)
@@ -28,11 +37,13 @@ function Menu() {
     } else {
       setSearchParams({})
     }
+    setCurrentPage(1)
     setIsCategoryOpen(false)
   }
 
   const handleAddToCart = (dish) => {
     addToCart({
+      foodId: dish._id,
       name: dish.name,
       description: dish.description,
       price: `रु ${dish.price.toLocaleString()}`,
@@ -41,6 +52,11 @@ function Menu() {
     setSentItem(dish.name)
     window.setTimeout(() => setSentItem(''), 1200)
   }
+
+  // Reset to page 1 when category changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedCategory])
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -58,7 +74,7 @@ function Menu() {
       try {
         const response = await axios.get("api/food/getfood", {
           withCredentials: true
-        });
+        })
         const menuItems = response?.data?.foods || []
         setFoods(menuItems)
         setRatings(Object.fromEntries(menuItems.map((food) => [food._id, Math.floor(Math.random() * 5) + 1])))
@@ -68,6 +84,12 @@ function Menu() {
     }
     fetchMenu();
   }, [])
+
+  const goToPage = (page) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <main className='bg-orange-50 px-5 py-16 text-orange-950 lg:px-8'>
       <div className='mx-auto max-w-7xl'>
@@ -105,10 +127,8 @@ function Menu() {
         </div>
         <p className='mt-5 max-w-xl text-lg leading-8 text-orange-950/60'>Comforting classics, fresh favorites, and sweet little endings made for your kind of day.</p>
 
-
-
         <div className='mt-10 grid justify-items-center gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-          {visibleFoods.map((dish) => (
+          {paginatedFoods.map((dish) => (
             <article key={dish._id} className='group mb-4 w-full max-w-[280px] overflow-hidden rounded-2xl border border-orange-200/80 bg-white shadow-[0_10px_30px_rgba(124,45,18,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(124,45,18,0.12)]'>
               <div className='relative flex justify-center aspect-[4/3] overflow-hidden bg-gradient-to-br from-orange-200 to-amber-300'>
                 <img src={dish.image} className='h-full w-full object-cover transition duration-500 group-hover:scale-105' alt={dish.name} />
@@ -151,11 +171,70 @@ function Menu() {
                 </div>
               </div>
             </article>
-
           ))}
         </div>
+
+        {/* Empty state */}
+        {visibleFoods.length === 0 && (
+          <p className='mt-16 text-center text-lg font-bold text-orange-950/50'>
+            No items found in this category.
+          </p>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className='mt-12 flex items-center justify-center gap-2'>
+            <button
+              type='button'
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              aria-label='Previous page'
+              className='flex h-11 w-11 items-center justify-center rounded-full border-2 border-orange-600 text-lg font-bold text-orange-700 transition-colors hover:bg-orange-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-orange-700'
+            >
+              ←
+            </button>
+
+            {Array.from({ length: totalPages }).map((_, i) => {
+              const pageNum = i + 1
+              const isActive = pageNum === currentPage
+              return (
+                <button
+                  key={pageNum}
+                  type='button'
+                  onClick={() => goToPage(pageNum)}
+                  aria-label={`Go to page ${pageNum}`}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`h-11 w-11 rounded-full text-sm font-bold transition-colors ${
+                    isActive
+                      ? 'bg-orange-600 text-white'
+                      : 'border border-orange-300 text-orange-700 hover:bg-orange-100'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              )
+            })}
+
+            <button
+              type='button'
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              aria-label='Next page'
+              className='flex h-11 w-11 items-center justify-center rounded-full border-2 border-orange-600 text-lg font-bold text-orange-700 transition-colors hover:bg-orange-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-orange-700'
+            >
+              →
+            </button>
+          </div>
+        )}
+
+        {/* Page info */}
+        {totalPages > 1 && (
+          <p className='mt-4 text-center text-xs font-semibold text-orange-950/50'>
+            Showing {startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, visibleFoods.length)} of {visibleFoods.length} items
+          </p>
+        )}
       </div>
-    </main >
+    </main>
   )
 }
 

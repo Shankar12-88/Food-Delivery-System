@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useCart from "../context/useCart.js";
 
 const categories = [
@@ -7,24 +7,28 @@ const categories = [
     detail: "Comfort in every bite",
     icon: "🍛",
     color: "bg-orange-100",
+    image: "./images/indiancuisine.avif"
   },
   {
     name: "Street favorites",
     detail: "Bold, bright, unforgettable",
     icon: "🌮",
     color: "bg-amber-100",
+    image: "./images/streetfood.avif"
   },
   {
     name: "Fresh & light",
     detail: "Goodness made delicious",
     icon: "🥗",
     color: "bg-lime-100",
+    image: "./images/freshandlightfood.avif"
   },
   {
     name: "Sweet endings",
     detail: "Save room for dessert",
     icon: "🍰",
     color: "bg-rose-100",
+    image: "./images/sweetfood.jpg"
   },
 ];
 
@@ -35,7 +39,7 @@ const popularDishes = [
     price: "रु 1,806",
     rating: "4.9",
     color: "from-orange-300 to-red-400",
-    emoji: "🍲",
+    emoji: "/images/TandooriButterBowl.avif",
   },
   {
     name: "Crispy Masala Wrap",
@@ -43,7 +47,7 @@ const popularDishes = [
     price: "रु 1,330",
     rating: "4.8",
     color: "from-amber-200 to-orange-400",
-    emoji: "🌯",
+    emoji: "/images/CrispyMasalaWrap.avif",
   },
   {
     name: "Mango Cloud Lassi",
@@ -51,7 +55,7 @@ const popularDishes = [
     price: "रु 735",
     rating: "5.0",
     color: "from-yellow-200 to-amber-300",
-    emoji: "🥭",
+    emoji: "/images/MangoCloudLassi.jpg",
   },
 ];
 
@@ -160,6 +164,34 @@ function Home() {
   const [sentItem, setSentItem] = useState("");
   const { addToCart } = useCart();
 
+  // --- Swipe reviews logic ---
+  const scrollRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.scrollWidth / reviews.length;
+    const index = Math.round(el.scrollLeft / cardWidth);
+    setActiveIndex(index);
+  };
+
+  const scrollToIndex = (index) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.scrollWidth / reviews.length;
+    el.scrollTo({ left: cardWidth * index, behavior: "smooth" });
+  };
+  // --- End swipe reviews logic ---
+
+  const handlePrev = () => {
+    if (activeIndex > 0) scrollToIndex(activeIndex - 1);
+  };
+
+  const handleNext = () => {
+    if (activeIndex < reviews.length - 1) scrollToIndex(activeIndex + 1);
+  };
+
   const handleAddToCart = (item) => {
     addToCart(item);
     setSentItem(item.name);
@@ -218,49 +250,65 @@ function Home() {
               </span>
             </div>
           </div>
-          <div className="relative mx-auto w-full max-w-lg">
-            <div className="absolute -right-4 -top-5 rounded-2xl bg-white px-4 py-3 shadow-xl shadow-orange-900/10">
+
+          {/* Right column — with extra padding so floating badges don't clip */}
+          <div className="relative mx-auto w-full max-w-lg px-6 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-10">
+            {/* Top-right rating badge */}
+            <div className="absolute right-0 top-0 z-10 rounded-2xl bg-white px-4 py-3 shadow-xl shadow-orange-900/10">
               <Stars value="4.9" />
               <p className="mt-1 text-xs font-medium text-orange-900/60">
                 Loved by locals
               </p>
             </div>
-            <div className="relative aspect-square rounded-[2.5rem] bg-orange-950 p-5 shadow-2xl shadow-orange-950/20">
-              <div className="flex h-full flex-col justify-between overflow-hidden rounded-[2rem] border border-orange-700 bg-gradient-to-br from-orange-500 via-orange-600 to-red-700 p-7 text-white">
-                <div className="flex items-start justify-between">
-                  <span className="text-sm font-bold uppercase tracking-[0.18em] text-orange-100">
-                    Bhoj / Express
-                  </span>
-                  <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-bold">
-                    #01
-                  </span>
-                </div>
-                <div className="text-center">
-                  <span
-                    className="text-8xl drop-shadow-lg"
-                    role="img"
-                    aria-label="Bowl of food"
-                  >
-                    🍛
-                  </span>
-                  <p className="mt-4 text-3xl font-black">Made with heart.</p>
-                  <p className="mt-2 text-orange-100">Delivered with care.</p>
-                </div>
-                <div className="flex items-end justify-between text-xs font-semibold text-orange-100">
-                  <span>
-                    Comfort food
-                    <br />
-                    for every mood
-                  </span>
-                  <span className="text-right">
-                    Est. 2026
-                    <br />
-                    Fresh daily
-                  </span>
+
+            {/* Main card */}
+            <div className="relative aspect-square overflow-hidden rounded-[2.5rem] bg-orange-950 p-5 shadow-2xl shadow-orange-950/20">
+              <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] text-white">
+
+                {/* Background image — brighter */}
+                <img
+                  src="/images/myrestaurant.webp"
+                  alt="Featured dish"
+                  className="absolute inset-0 h-full w-full object-cover brightness-110 saturate-105"
+                />
+
+                {/* Lighter gradient — only darkens top/bottom for text */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-transparent to-black/55" />
+
+                {/* Content */}
+                <div className="relative flex h-full flex-col justify-between p-7">
+                  <div className="flex items-start justify-between">
+                    <span className="text-sm font-bold uppercase tracking-[0.18em] text-orange-100 drop-shadow-md">
+                      Bhoj / Express
+                    </span>
+                    <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-bold backdrop-blur">
+                      #01
+                    </span>
+                  </div>
+
+                  <div className="text-center">
+                    <p className="text-3xl font-black drop-shadow-lg">Made with heart.</p>
+                    <p className="mt-2 text-orange-100 drop-shadow-md">Delivered with care.</p>
+                  </div>
+
+                  <div className="flex items-end justify-between text-xs font-semibold text-orange-100">
+                    <span className="drop-shadow-md">
+                      Comfort food
+                      <br />
+                      for every mood
+                    </span>
+                    <span className="text-right drop-shadow-md">
+                      Est. 2026
+                      <br />
+                      Fresh daily
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-5 -left-5 rounded-2xl bg-white px-5 py-4 shadow-xl shadow-orange-900/10">
+
+            {/* Bottom-left delivery badge */}
+            <div className="absolute bottom-0 left-0 z-10 rounded-2xl bg-white px-5 py-4 shadow-xl shadow-orange-900/10">
               <p className="text-2xl font-black text-orange-600">30 min</p>
               <p className="text-xs font-medium text-orange-900/60">
                 Average delivery
@@ -269,7 +317,6 @@ function Home() {
           </div>
         </div>
       </section>
-
       <section
         aria-label="Bhoj Express highlights"
         className="border-b border-orange-100 bg-white"
@@ -318,22 +365,41 @@ function Home() {
           {categories.map((category) => (
             <a
               key={category.name}
-              href={category.name === "Indian cuisine" ? "/menu?category=Indian%20Cuisine" : "#menu"}
-              className={`group rounded-3xl ${category.color} p-6 transition-transform hover:-translate-y-1`}
+              href={
+                category.name === "Indian cuisine"
+                  ? "/menu?category=Indian%20Cuisine"
+                  : "menu"
+              }
+              className={`group relative flex flex-col overflow-hidden rounded-3xl ${category.color} transition-all duration-300 hover:-translate-y-1 hover:shadow-xl`}
             >
-              <span className="text-5xl" role="img" aria-label={category.name}>
-                {category.icon}
-              </span>
-              <h3 className="mt-8 text-lg font-black">{category.name}</h3>
-              <p className="mt-1 text-sm text-orange-950/60">
-                {category.detail}
-              </p>
-              <span
-                className="mt-5 inline-block text-xl font-bold text-orange-700 transition-transform group-hover:translate-x-1"
-                aria-hidden="true"
-              >
-                →
-              </span>
+              <div className="relative h-44 w-full overflow-hidden">
+                <img
+                  src={category.image}
+                  alt={category.name}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+              </div>
+
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="text-lg font-black tracking-tight text-orange-950">
+                  {category.name}
+                </h3>
+                <p className="mt-1 text-sm text-orange-950/60">
+                  {category.detail}
+                </p>
+
+                <span
+                  className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-orange-700 transition-all duration-300 group-hover:gap-3"
+                  aria-hidden="true"
+                >
+                  Explore
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">
+                    →
+                  </span>
+                </span>
+              </div>
             </a>
           ))}
         </div>
@@ -361,35 +427,50 @@ function Home() {
             {popularDishes.map((dish) => (
               <article
                 key={dish.name}
-                className="overflow-hidden rounded-3xl bg-white text-orange-950"
+                className="group relative overflow-hidden rounded-3xl bg-white text-orange-950 shadow-[0_10px_30px_rgba(124,45,18,0.08)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_45px_rgba(124,45,18,0.15)]"
               >
-                <div
-                  className={`flex h-48 items-center justify-center bg-gradient-to-br ${dish.color}`}
-                >
-                  <span
-                    className="text-8xl drop-shadow-md"
-                    role="img"
-                    aria-label={dish.name}
-                  >
-                    {dish.emoji}
+                {/* Image */}
+                <div className="relative h-56 w-full overflow-hidden bg-gradient-to-br from-orange-200 via-amber-300 to-yellow-200">
+                  <img
+                    src={dish.emoji}
+                    alt={dish.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+
+                  {/* Bottom gradient for the price tag readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+
+                  {/* Rating badge — top-left */}
+                  <span className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-orange-950 shadow-sm backdrop-blur">
+                    <span className="text-amber-400">★</span>
+                    {dish.rating}
+                  </span>
+
+                  {/* Price tag — bottom-right, on the image */}
+                  <span className="absolute bottom-4 right-4 rounded-full bg-emerald-600 px-4 py-1.5 text-sm font-black text-white shadow-lg shadow-emerald-900/20">
+                    {dish.price}
                   </span>
                 </div>
+
+                {/* Content */}
                 <div className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <h3 className="text-xl font-black">{dish.name}</h3>
-                    <span className="whitespace-nowrap text-lg font-black text-emerald-600">
-                      {dish.price}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-orange-950/60">
+                  <h3 className="text-xl font-black tracking-tight">{dish.name}</h3>
+
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-orange-950/60">
                     {dish.description}
                   </p>
-                  <div className="mt-5 flex items-center justify-between">
+
+                  <div className="mt-5 flex items-center justify-between border-t border-orange-100 pt-5">
                     <Stars value={dish.rating} />
+
                     <button
                       type="button"
                       onClick={() => handleAddToCart(dish)}
-                      className={`text-sm font-bold transition-colors ${sentItem === dish.name ? "cart-sent text-green-600" : "text-orange-600 hover:text-orange-800"}`}
+                      className={`rounded-full px-5 py-2 text-sm font-bold transition-all duration-300 ${sentItem === dish.name
+                          ? "bg-green-600 text-white"
+                          : "bg-orange-600 text-white hover:bg-orange-700 hover:shadow-lg hover:shadow-orange-600/30"
+                        }`}
                     >
                       {sentItem === dish.name ? "Sent ✓" : "Add to order +"}
                     </button>
@@ -413,6 +494,7 @@ function Home() {
             From our kitchen to your table.
           </h2>
         </div>
+
         <div className="mt-12 grid gap-8 md:grid-cols-3">
           {[
             [
@@ -430,12 +512,22 @@ function Home() {
               "Enjoy the moment",
               "Follow your delivery and get ready for a meal worth sharing.",
             ],
-          ].map(([number, title, text]) => (
-            <div key={number} className="border-t-2 border-orange-200 pt-5">
-              <span className="text-sm font-black text-orange-600">
+          ].map(([number, title, text], index) => (
+            <div
+              key={number}
+              className="group relative border-t-2 border-orange-200 pt-6 transition-all duration-500 hover:border-orange-500 hover:-translate-y-1"
+              style={{ animationDelay: `${index * 120}ms` }}
+            >
+              <span className="absolute -top-[2px] left-0 h-[2px] w-0 bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-500 group-hover:w-full" />
+
+              <span className="inline-block text-sm font-black text-orange-600 transition-transform duration-500 group-hover:-translate-y-1">
                 {number}
               </span>
-              <h3 className="mt-12 text-xl font-black">{title}</h3>
+
+              <h3 className="mt-12 text-xl font-black tracking-tight transition-colors duration-300 group-hover:text-orange-700">
+                {title}
+              </h3>
+
               <p className="mt-3 max-w-xs text-sm leading-6 text-orange-950/60">
                 {text}
               </p>
@@ -445,96 +537,34 @@ function Home() {
       </section>
 
       <section
-        id="offers"
-        className="mx-5 overflow-hidden rounded-[2rem] bg-amber-300 lg:mx-auto lg:max-w-7xl"
-      >
-        <div className="grid items-center gap-8 px-8 py-12 sm:px-14 lg:grid-cols-[1fr_auto] lg:px-16">
-          <div>
-            <span className="rounded-full bg-orange-950 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">
-              First order treat
-            </span>
-            <h2 className="mt-5 max-w-2xl text-4xl font-black tracking-tight text-orange-950 sm:text-5xl">
-              A little welcome gift, on us.
-            </h2>
-            <p className="mt-4 max-w-lg text-orange-950/70">
-              Take रु 100 off your first order with code{" "}
-              <strong className="text-orange-950">WELCOME100</strong>. Your
-              dinner plans just got better.
-            </p>
-          </div>
-          <a
-            href="#order"
-            className="w-fit rounded-full bg-orange-950 px-7 py-3.5 text-center text-sm font-bold text-white hover:bg-orange-800"
-          >
-            Claim the offer <span aria-hidden="true">→</span>
-          </a>
-        </div>
-      </section>
-
-      <section id="reviews" className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-600">
-              Kind words
-            </p>
-            <h2 className="mt-2 text-4xl font-black tracking-tight">
-              The reviews are in.
-            </h2>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-3xl font-black">4.9</span>
-            <div>
-              <Stars />
-              <p className="text-xs text-orange-950/50">2,000+ reviews</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="reviews-marquee-wrapper mt-10">
-          <div className="reviews-marquee-track">
-            {marqueeReviews.map((review, index) => (
-              <figure
-                key={`${review.name}-${index}`}
-                className="review-marquee-card rounded-3xl border border-orange-200 bg-white p-7"
-              >
-                <Stars />
-                <blockquote className="mt-6 text-lg font-bold leading-8 text-orange-950">
-                  “{review.quote}”
-                </blockquote>
-                <figcaption className="mt-8 flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-200 text-xs font-black text-orange-800">
-                    {review.initials}
-                  </span>
-                  <span>
-                    <strong className="block text-sm">{review.name}</strong>
-                    <span className="text-xs text-orange-950/50">
-                      {review.detail}
-                    </span>
-                  </span>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="feedback"
+        id="reviews"
         className="border-y border-orange-200 bg-orange-100"
       >
         <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
           <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-600">
-                Your voice matters
+                Kind words
               </p>
               <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-                How did we do?
+                The reviews are in.
               </h2>
               <p className="mt-3 max-w-xl text-sm leading-6 text-orange-950/65">
                 A few notes from the people who keep us cooking. Every rating
                 helps us make the next order even better.
               </p>
+              <div className="mt-5 flex items-center gap-3">
+                <span className="text-3xl font-black">4.9</span>
+                <div>
+                  <div
+                    className="text-sm tracking-widest text-amber-400"
+                    aria-label="5 out of 5 stars"
+                  >
+                    ★★★★★
+                  </div>
+                  <p className="text-xs text-orange-950/50">2,000+ reviews</p>
+                </div>
+              </div>
             </div>
             <a
               href="contact"
@@ -543,23 +573,60 @@ function Home() {
               Leave feedback <span aria-hidden="true">↗</span>
             </a>
           </div>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {feedbackNotes.map(([quote, author], index) => (
-              <article
-                key={author}
-                style={{ animationDelay: `${index}s` }}
-                className="animate-[slide-in-right_800ms_ease-out_both] rounded-2xl border border-orange-200 bg-white p-5 shadow-sm"
-              >
-                <div
-                  className="text-sm tracking-widest text-amber-400"
-                  aria-label="5 out of 5 stars"
+
+          {/* Swipeable reviews with side arrows */}
+          <div className="mt-10 flex items-center gap-4">
+            <button
+              onClick={handlePrev}
+              disabled={activeIndex === 0}
+              aria-label="Previous review"
+              className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-xl text-orange-600 shadow-md transition hover:bg-orange-50 disabled:opacity-30 disabled:hover:bg-white sm:flex"
+            >
+              ←
+            </button>
+
+            <div
+              ref={scrollRef}
+              onScroll={handleScroll}
+              className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {reviews.map((review, index) => (
+                <figure
+                  key={`${review.name}-${index}`}
+                  className="flex h-full w-[85%] flex-none snap-start flex-col rounded-2xl border border-orange-200 bg-white p-5 shadow-sm transition-all duration-300 hover:border-orange-300 hover:shadow-md sm:w-[48%] lg:w-[calc((100%-3rem)/4)]"
                 >
-                  ★★★★★
-                </div>
-                <p className="mt-4 text-sm font-bold leading-6">{quote}</p>
-                <p className="mt-4 text-xs text-orange-950/50">{author}</p>
-              </article>
-            ))}
+                  <div
+                    className="text-sm tracking-widest text-amber-400"
+                    aria-label="5 out of 5 stars"
+                  >
+                    ★★★★★
+                  </div>
+                  <blockquote className="mt-4 flex-1 text-sm font-bold leading-6 text-orange-950">
+                    “{review.quote}”
+                  </blockquote>
+                  <figcaption className="mt-4 flex items-center gap-3 border-t border-orange-100 pt-4">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-200 text-xs font-black text-orange-800">
+                      {review.initials}
+                    </span>
+                    <span>
+                      <strong className="block text-sm">{review.name}</strong>
+                      <span className="text-xs text-orange-950/50">
+                        {review.detail}
+                      </span>
+                    </span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+
+            <button
+              onClick={handleNext}
+              disabled={activeIndex === reviews.length - 1}
+              aria-label="Next review"
+              className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-xl text-orange-600 shadow-md transition hover:bg-orange-50 disabled:opacity-30 disabled:hover:bg-white sm:flex"
+            >
+              →
+            </button>
           </div>
         </div>
       </section>

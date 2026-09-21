@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 import useCart from '../context/useCart.js'
 const navigationLinks = [
   { label: 'Home', href: '/' },
@@ -10,11 +11,25 @@ const navigationLinks = [
   { label: 'Contact', href: '/contact' },
 ]
 
-function Navbar({ onLogout }) {
+function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const { itemCount } = useCart()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('api/users/logout', {}, { withCredentials: true })
+      setCurrentUser(null)
+      toast.success('Logged out successfully', { id: 'logout-success' })
+      navigate('/')
+    } catch (error) {
+      console.error('Logout error:', error)
+      toast.error('Failed to log out', { id: 'logout-error' })
+    }
+  }
+
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -35,7 +50,7 @@ function Navbar({ onLogout }) {
 
 
     fetchUserProfile()
-  },[])
+  }, [])
 
 
   return (
@@ -80,7 +95,7 @@ function Navbar({ onLogout }) {
                     <div><dt className='text-xs text-orange-950/50'>Gender</dt><dd className='font-semibold text-orange-950'>Not set</dd></div>
                     <div><dt className='text-xs text-orange-950/50'>Settings</dt><dd className='font-semibold text-orange-600'>Manage</dd></div>
                   </dl>
-                  <button type='button' onClick={onLogout} className='w-full rounded-xl border border-orange-200 px-4 py-2.5 text-sm font-bold text-orange-700 transition-colors hover:bg-orange-50'>Log out</button>
+                  <button type='button' onClick={handleLogout} className='w-full rounded-xl border border-orange-200 px-4 py-2.5 text-sm font-bold text-orange-700 transition-colors hover:bg-orange-50'>Log out</button>
                 </div>
               )}
             </div>
@@ -112,7 +127,7 @@ function Navbar({ onLogout }) {
             {currentUser ? (
               <>
                 <button type='button' onClick={() => setIsProfileOpen((open) => !open)} className='mt-1 rounded-lg bg-orange-600 px-3 py-2.5 text-center text-sm font-semibold text-white hover:bg-orange-700'>Profile</button>
-                {isProfileOpen && <div className='rounded-xl border border-orange-100 bg-orange-50 p-4 text-sm'><p className='font-bold text-orange-950'>{currentUser.name}</p><p className='mt-1 text-orange-950/60'>{currentUser.email}</p><p className='mt-3 text-orange-950/60'>Profile · Date of birth: Not set · Gender: Not set</p><button type='button' onClick={onLogout} className='mt-3 font-bold text-orange-700'>Log out</button></div>}
+                {isProfileOpen && <div className='rounded-xl border border-orange-100 bg-orange-50 p-4 text-sm'><p className='font-bold text-orange-950'>{currentUser.name}</p><p className='mt-1 text-orange-950/60'>{currentUser.email}</p><p className='mt-3 text-orange-950/60'>Profile · Date of birth: Not set · Gender: Not set</p><button type='button' onClick={handleLogout} className='mt-3 font-bold text-orange-700'>Log out</button></div>}
               </>
             ) : (
               <Link to='/login' onClick={() => setIsMenuOpen(false)} className='mt-1 rounded-lg bg-orange-600 px-3 py-2.5 text-center text-sm font-semibold text-white hover:bg-orange-700'>Login</Link>

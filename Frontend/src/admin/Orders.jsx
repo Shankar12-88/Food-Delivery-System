@@ -1,11 +1,33 @@
-const orders = [
-  { id: '#1048', customer: 'Aarav Sharma', items: '2 items', total: 'रु 28.40', status: 'Preparing' },
-  { id: '#1047', customer: 'Maya Thompson', items: '4 items', total: 'रु 46.85', status: 'Ready' },
-  { id: '#1046', customer: 'Rohan Karki', items: '1 item', total: 'रु 12.90', status: 'Delivered' },
-  { id: '#1045', customer: 'Sofia Williams', items: '3 items', total: 'रु 35.20', status: 'Pending' },
-]
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 
 function Orders() {
+  const [orders, setOrders] = useState([])
+
+  const fetchOrders = async () => {
+    try {
+      const response = await axios.get('/api/orders', { withCredentials: true })
+      setOrders(response.data.orders)
+    } catch (error) {
+      console.error('Failed to fetch orders:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrders()
+  }, [])
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm('Are you sure you want to cancel and delete this order?')) return
+    try {
+      await axios.delete(`/api/orders/${orderId}`, { withCredentials: true })
+      setOrders(orders.filter(o => o._id !== orderId))
+    } catch (error) {
+      console.error('Failed to cancel order:', error)
+      alert('Failed to cancel order')
+    }
+  }
+
   return (
     <div className='rounded-3xl border border-orange-100 bg-white p-6 shadow-sm'>
       <div className='mb-6 flex items-center justify-between'>
@@ -19,27 +41,54 @@ function Orders() {
         <table className='min-w-full text-left'>
           <thead>
             <tr className='border-b border-orange-100 text-xs font-bold uppercase tracking-wide text-orange-500'>
-              <th className='pb-3 pr-4'>Order</th>
-              <th className='pb-3 pr-4'>Customer</th>
+              <th className='pb-3 pr-4'>Order ID</th>
+              <th className='pb-3 pr-4'>Customer & Contact</th>
               <th className='pb-3 pr-4'>Items</th>
               <th className='pb-3 pr-4'>Total</th>
-              <th className='pb-3'>Status</th>
+              <th className='pb-3 pr-4'>Status</th>
+              <th className='pb-3'>Actions</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order.id} className='border-b border-orange-50'>
-                <td className='py-4 pr-4 font-black text-orange-950'>{order.id}</td>
-                <td className='py-4 pr-4 font-semibold text-orange-900'>{order.customer}</td>
-                <td className='py-4 pr-4 text-orange-700'>{order.items}</td>
-                <td className='py-4 pr-4 font-black text-emerald-600'>{order.total}</td>
-                <td className='py-4'>
+              <tr key={order._id} className='border-b border-orange-50 align-top'>
+                <td className='py-4 pr-4 font-black text-orange-950'>#{order.order_id || order._id.slice(-5).toUpperCase()}</td>
+                <td className='py-4 pr-4'>
+                  <div className='font-semibold text-orange-900'>{order.name || order.user}</div>
+                  {order.phone && (
+                    <a href={`tel:${order.phone}`} className='text-sm text-emerald-600 hover:underline'>
+                      📞 {order.phone}
+                    </a>
+                  )}
+                </td>
+                <td className='py-4 pr-4 text-orange-700 max-w-xs'>
+                  <ul className='list-disc pl-4 text-sm'>
+                    {order.items?.map((item, idx) => (
+                      <li key={idx}>{item.name} x{item.quantity}</li>
+                    ))}
+                  </ul>
+                </td>
+                <td className='py-4 pr-4 font-black text-emerald-600'>रु {order.total?.toFixed(2)}</td>
+                <td className='py-4 pr-4'>
                   <span className='rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700'>
                     {order.status}
                   </span>
                 </td>
+                <td className='py-4'>
+                  <button
+                    onClick={() => handleCancelOrder(order._id)}
+                    className='rounded-xl bg-red-100 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-200'
+                  >
+                    Cancel
+                  </button>
+                </td>
               </tr>
             ))}
+            {orders.length === 0 && (
+              <tr>
+                <td colSpan='6' className='py-8 text-center text-orange-950/50'>No orders found.</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

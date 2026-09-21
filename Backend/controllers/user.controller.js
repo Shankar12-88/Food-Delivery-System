@@ -95,10 +95,10 @@ const login = async (req, res) => {
 
 const fetchUser = async (req, res) => {
     try {
-        const { id } = req.user._id;
-
+        const users = await User.find().select('-password');
+        return res.status(200).json({ users });
     } catch (e) {
-        return res.status(500).json({ message: 'Unable to fetch user' })
+        return res.status(500).json({ message: 'Unable to fetch users' })
     }
 }
 

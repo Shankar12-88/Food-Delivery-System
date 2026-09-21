@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
-function Login({ onRegister, onHome, onAuthenticated }) {
+
+function Login({  onAuthenticated }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const navigate = useNavigate()
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -24,10 +27,19 @@ function Login({ onRegister, onHome, onAuthenticated }) {
         withCredentials: true,
       })
 
-      console.log('response', response);
-      
       toast.success('Login verified. Welcome back.', { id: 'login-success' })
-      onAuthenticated(response.data.user)
+      
+      window.dispatchEvent(new CustomEvent('user-login', { detail: response.data.user }))
+
+      if (onAuthenticated) {
+        onAuthenticated(response.data.user)
+      }
+
+      if (response.data.user.role === 'admin') {
+        navigate('/admin')
+      } else {
+        navigate('/')
+      }
     } catch (error) {
       console.error('Login error:', error.response?.data || error.message)
       toast.error(error.response?.data?.message || 'Unable to verify your login. Please try again.', { id: 'login-error' })
@@ -41,7 +53,7 @@ function Login({ onRegister, onHome, onAuthenticated }) {
       <section className='grid w-full max-w-5xl overflow-hidden rounded-[2rem] bg-white shadow-xl shadow-orange-950/10 lg:grid-cols-[0.9fr_1.1fr]'>
         <div className='hidden bg-orange-950 p-10 text-white lg:flex lg:flex-col lg:justify-between'>
           <div>
-            <button type='button' onClick={onHome} className='flex items-center gap-3 text-left'>
+            <button type='button' onClick={() => navigate('/')} className='flex items-center gap-3 text-left'>
               <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-orange-400'>
                 <img src='/bhojExpress(1).jpg' alt='Bhoj Express logo' className='h-full w-full rounded-full object-contain' />
               </div>
@@ -53,7 +65,7 @@ function Login({ onRegister, onHome, onAuthenticated }) {
         </div>
 
         <div className='p-7 sm:p-12'>
-          <button type='button' onClick={onHome} className='text-sm font-bold text-orange-600 hover:text-orange-800'>← Back to home</button>
+          <button type='button' onClick={(() => navigate('/'))} className='text-sm font-bold text-orange-600 hover:text-orange-800'>← Back to home</button>
           <div className='mt-10'><p className='text-sm font-bold uppercase tracking-[0.2em] text-orange-600'>Good to see you</p><h1 className='mt-2 text-4xl font-black tracking-tight text-orange-950'>Sign in</h1><p className='mt-3 text-sm text-orange-950/60'>Continue your Bhoj Express journey.</p></div>
           <form onSubmit={handleSubmit} className='mt-8 space-y-5'>
             <label className='block text-sm font-bold text-orange-950'>Email address<input type='email' name='email' autoComplete='email' required placeholder='you@example.com' className='mt-2 w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 font-normal outline-none transition focus:border-orange-600 focus:ring-2 focus:ring-orange-200' /></label>
@@ -61,7 +73,7 @@ function Login({ onRegister, onHome, onAuthenticated }) {
             <div className='flex items-center justify-between text-xs'><label className='flex items-center gap-2 text-orange-950/60'><input type='checkbox' className='accent-orange-600' /> Remember me</label><a href='#forgot-password' className='font-bold text-orange-600 hover:text-orange-800'>Forgot password?</a></div>
             <button type='submit' disabled={isSubmitting} aria-busy={isSubmitting} className='w-full rounded-xl bg-orange-600 px-5 py-3.5 text-sm font-bold text-white hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60'>{isSubmitting ? 'Verifying...' : 'Sign in'}</button>
           </form>
-          <p className='mt-8 text-center text-sm text-orange-950/60'>New to Bhoj Express? <button type='button' onClick={onRegister} className='font-bold text-orange-600 hover:text-orange-800'>Create an account</button></p>
+          <p className='mt-8 text-center text-sm text-orange-950/60'>New to Bhoj Express? <button type='button' onClick={() => navigate('/register')} className='font-bold text-orange-600 hover:text-orange-800'>Create an account</button></p>
         </div>
       </section>
     </main>

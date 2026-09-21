@@ -6,7 +6,7 @@ import cors from 'cors'
 import { restaurantRoute } from './routes/restaurantRoute.js'
 import { foodRoute } from './routes/foodRoute.js'
 import { userQueryRouter } from './routes/userQueryRoute.js'
-
+import orderRouter from './routes/orderRoute.js'
 const app = express()
 
 app.use(cors({
@@ -24,8 +24,7 @@ app.use('/api/payments', paymentRouter)
 app.use('/api/restaurant', restaurantRoute) //restaurantController routes
 app.use('/api/food', foodRoute) //foodController routes
 app.use('/api/userquery', userQueryRouter) //userQueryController routes
-
-
+app.use('/api/orders', orderRouter) //orderController routes
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack)

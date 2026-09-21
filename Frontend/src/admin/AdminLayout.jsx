@@ -1,5 +1,7 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { useRef, useState } from 'react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useRef, useState, useEffect } from 'react'
+import axios from 'axios'
+import toast from 'react-hot-toast'
 
 const navItems = [
   { label: 'Dashboard', to: '/admin/dashboard' },
@@ -9,13 +11,40 @@ const navItems = [
   { label: 'Transcation', to: '/admin/]transcations' },
   { label: 'Customers', to: '/admin/users' },
   { label: 'Settings', to: '/admin/settings' },
-
 ]
 
 function AdminLayout() {
   const sidebarRef = useRef(null)
   const mainRef = useRef(null)
   const location = useLocation()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await axios.get('/api/users/profile', { withCredentials: true })
+        if (response.data.user?.role !== 'admin') {
+          navigate('/')
+        }
+      } catch (error) {
+        navigate('/login')
+      }
+    }
+    checkAuth()
+  }, [navigate])
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('api/users/logout', {}, { withCredentials: true })
+      toast.success('Logged out successfully', { id: 'logout-success' })
+      navigate('/')
+      window.location.reload()
+    } catch (error) {
+      console.error('Logout error:', error)
+      toast.error('Failed to log out', { id: 'logout-error' })
+    }
+  }
+
   const [isProductsOpen, setIsProductsOpen] = useState(location.pathname.startsWith('/admin/products'))
   const isProductsActive = location.pathname.startsWith('/admin/products')
 
@@ -91,6 +120,7 @@ function AdminLayout() {
 
               <div className='flex items-center gap-3'>
                 <button type='button' className='rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700'>View Store</button>
+                <button type='button' onClick={handleLogout} className='rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 hover:bg-orange-100'>Log out</button>
                 <div className='flex h-11 w-11 items-center justify-center rounded-full bg-orange-500 text-sm font-black text-white'>RS</div>
               </div>
             </div>

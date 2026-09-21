@@ -1,15 +1,46 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import useCart from '../context/useCart.js'
+import axios from 'axios'
 
 function Cart() {
   const [isCheckingOut, setIsCheckingOut] = useState(false)
   const { items, updateItem, itemCount, total } = useCart()
+  const navigate = useNavigate()
 
+  useEffect(() => {
+    window.scroll(0, 0)
+    const checkAuth = async () => {
+      try {
+        await axios.get('/api/users/profile', { withCredentials: true })
+      } catch (error) {
+        navigate('/register')
+      }
+    }
+    checkAuth()
+  }, [navigate])
   async function handleCheckout() {
     setIsCheckingOut(true)
 
     try {
+      let customerName = 'Guest Customer'
+      let customerEmail = 'guest@example.com'
+      try {
+        const profileRes = await axios.get('/api/users/profile', { withCredentials: true })
+        customerName = profileRes.data.user.name
+        customerEmail = profileRes.data.user.email
+      } catch (err) {
+        // Proceed as guest
+      }
+
+      await axios.post('/api/orders/checkout', {
+        name: customerName,
+        phone: '9800000000', // Mocked as there's no input form yet
+        address: 'Kathmandu, Nepal', // Mocked as there's no input form yet
+        payment_method: 'esewa'
+      })
+
       const response = await fetch('/api/payments/esewa/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

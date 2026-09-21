@@ -1,6 +1,5 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import axios from 'axios'
-import { Outlet } from 'react-router-dom'
 
 import AdminLayout from './admin/AdminLayout.jsx'
 import Dashboard from './admin/Dashboard.jsx'
@@ -20,7 +19,6 @@ import Menu from './pages/Menu.jsx'
 import FoodDetails from './pages/FoodDetails.jsx'
 import Offers from './pages/Offers.jsx'
 import Register from './auth/Register.jsx'
-
 import Profile from './pages/Profile.jsx'
 import { CartProvider } from './context/CartContext.jsx'
 
@@ -41,8 +39,8 @@ function MainLayout() {
 
 function App() {
   return (
-    <CartProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <CartProvider>
         <Routes>
           <Route element={<MainLayout />}>
             <Route path='/' element={<Home />} />
@@ -66,8 +64,8 @@ function App() {
             <Route path='*' element={<NotFound />} />
           </Route>
         </Routes>
-      </BrowserRouter>
-    </CartProvider>
+      </CartProvider>
+    </BrowserRouter>
   )
 }
 
