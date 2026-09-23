@@ -3,17 +3,20 @@ import axios from 'axios'
 
 function Orders() {
   const [orders, setOrders] = useState([])
+  const [updatingId, setUpdatingId] = useState(null)
 
   const fetchOrders = async () => {
     try {
       const response = await axios.get('/api/orders', { withCredentials: true })
-      setOrders(response.data.orders)
+      setOrders(response.data.orders);
     } catch (error) {
       console.error('Failed to fetch orders:', error)
     }
   }
 
   useEffect(() => {
+    // Fetch once when the order-management page opens.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchOrders()
   }, [])
 
@@ -27,6 +30,26 @@ function Orders() {
       alert('Failed to cancel order')
     }
   }
+
+  const handleAdvanceStatus = async (orderId) => {
+    setUpdatingId(orderId)
+    try {
+      const response = await axios.patch(`/api/orders/${orderId}/advance-status`, {}, { withCredentials: true })
+      setOrders((current) => current.map((order) => order._id === orderId ? { ...response.data.order, contactEmail: response.data.order.email || order.contactEmail } : order))
+    } catch (error) {
+      alert(error.response?.data?.message || 'Unable to update order status')
+    } finally {
+      setUpdatingId(null)
+    }
+  }
+
+  const nextActionLabel = (status) => ({
+    Cart: 'Accept order',
+    Pending: 'Start preparing',
+    Preparing: 'Mark packed',
+    Packing: 'Send on route',
+    'On route': 'Mark delivered',
+  }[status])
 
   return (
     <div className='rounded-3xl border border-orange-100 bg-white p-6 shadow-sm'>
@@ -52,12 +75,17 @@ function Orders() {
           <tbody>
             {orders.map((order) => (
               <tr key={order._id} className='border-b border-orange-50 align-top'>
-                <td className='py-4 pr-4 font-black text-orange-950'>#{order.order_id || order._id.slice(-5).toUpperCase()}</td>
+                <td className='py-4 pr-4 font-black text-orange-950'>#{order._id.slice(-5).toUpperCase()}</td>
                 <td className='py-4 pr-4'>
-                  <div className='font-semibold text-orange-900'>{order.name || order.user}</div>
+                  <div className='font-semibold text-orange-900'>{order.name || 'Customer'}</div>
                   {order.phone && (
                     <a href={`tel:${order.phone}`} className='text-sm text-emerald-600 hover:underline'>
                       📞 {order.phone}
+                    </a>
+                  )}
+                  {!order.phone && order.contactEmail && (
+                    <a href={`mailto:${order.contactEmail}`} className='block text-sm text-emerald-600 hover:underline'>
+                      {order.contactEmail}
                     </a>
                   )}
                 </td>
@@ -75,12 +103,10 @@ function Orders() {
                   </span>
                 </td>
                 <td className='py-4'>
-                  <button
-                    onClick={() => handleCancelOrder(order._id)}
-                    className='rounded-xl bg-red-100 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-200'
-                  >
-                    Cancel
-                  </button>
+                  <div className='flex flex-wrap gap-2'>
+                    {nextActionLabel(order.status) && <button onClick={() => handleAdvanceStatus(order._id)} disabled={updatingId === order._id} className='rounded-xl bg-orange-600 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-orange-700 disabled:opacity-60'>{updatingId === order._id ? 'Updating...' : nextActionLabel(order.status)}</button>}
+                    {order.status !== 'Delivered' && <button onClick={() => handleCancelOrder(order._id)} className='rounded-xl bg-red-100 px-3 py-1.5 text-xs font-bold text-red-600 transition hover:bg-red-200'>Cancel</button>}
+                  </div>
                 </td>
               </tr>
             ))}

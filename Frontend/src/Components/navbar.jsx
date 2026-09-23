@@ -22,6 +22,7 @@ function Navbar() {
     try {
       await axios.post('api/users/logout', {}, { withCredentials: true })
       setCurrentUser(null)
+      window.dispatchEvent(new CustomEvent('user-logout'))
       toast.success('Logged out successfully', { id: 'logout-success' })
       navigate('/')
     } catch (error) {

@@ -7,6 +7,8 @@ import Orders from './admin/Orders.jsx'
 import Products from './admin/Products.jsx'
 import Users from './admin/Users.jsx'
 import AddProduct from './admin/AddProduct.jsx'
+import Categories from './admin/Categories.jsx'
+import CreateAdmin from './admin/CreateAdmin.jsx'
 import NotFound from './admin/NotFound.jsx'
 import Navbar from './Components/navbar.jsx'
 import Footer from './Components/footer.jsx'
@@ -59,6 +61,8 @@ function App() {
             <Route path='dashboard' element={<Dashboard />} />
             <Route path='products' element={<Products />} />
             <Route path='products/add' element={<AddProduct />} />
+            <Route path='categories' element={<Categories />} />
+            <Route path='administrators/add' element={<CreateAdmin />} />
             <Route path='orders' element={<Orders />} />
             <Route path='users' element={<Users />} />
             <Route path='*' element={<NotFound />} />

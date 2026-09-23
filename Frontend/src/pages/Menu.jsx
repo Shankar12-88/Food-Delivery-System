@@ -41,22 +41,15 @@ function Menu() {
     setIsCategoryOpen(false)
   }
 
-  const handleAddToCart = (dish) => {
-    addToCart({
-      foodId: dish._id,
-      name: dish.name,
-      description: dish.description,
-      price: `रु ${dish.price.toLocaleString()}`,
-      emoji: '🍽️',
-    })
-    setSentItem(dish.name)
-    window.setTimeout(() => setSentItem(''), 1200)
+  const handleAddToCart = async (dish) => {
+    try {
+      await addToCart({ foodId: dish._id })
+      setSentItem(dish._id)
+      window.setTimeout(() => setSentItem(''), 1200)
+    } catch {
+      // CartContext handles authentication redirects. Do not show a false success state.
+    }
   }
-
-  // Reset to page 1 when category changes
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [selectedCategory])
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -109,7 +102,7 @@ function Menu() {
               <span aria-hidden='true' className={`text-xs transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`}>▼</span>
             </button>
             {isCategoryOpen && (
-              <div className='absolute right-0 top-full z-20 mt-2 min-w-56 overflow-hidden rounded-xl border border-orange-200 bg-white p-1.5 shadow-xl shadow-orange-950/10' role='menu'>
+              <div className='absolute right-0 top-full z-20 mt-2 max-h-72 min-w-56 overflow-y-auto overscroll-contain rounded-xl border border-orange-200 bg-white p-1.5 shadow-xl shadow-orange-950/10' role='menu'>
                 <button type='button' onClick={() => handleCategoryChange('')} className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold transition hover:bg-orange-50 ${!selectedCategory ? 'bg-orange-50 text-orange-700' : 'text-orange-950'}`} role='menuitem'>
                   All items
                   {!selectedCategory && <span aria-hidden='true'>✓</span>}
@@ -164,9 +157,9 @@ function Menu() {
                   <button
                     type='button'
                     onClick={() => handleAddToCart(dish)}
-                    className={`rounded-xl px-4 py-1.5 text-sm font-bold text-white transition-colors ${sentItem === dish.name ? 'bg-green-600' : 'bg-orange-600 hover:bg-orange-700'}`}
+                    className={`rounded-xl px-4 py-1.5 text-sm font-bold text-white transition-colors ${sentItem === dish._id ? 'bg-green-600' : 'bg-orange-600 hover:bg-orange-700'}`}
                   >
-                    {sentItem === dish.name ? 'Sent ✓' : 'Add to Cart'}
+                    {sentItem === dish._id ? 'Sent ✓' : 'Add to Cart'}
                   </button>
                 </div>
               </div>

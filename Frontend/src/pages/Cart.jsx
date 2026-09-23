@@ -14,7 +14,7 @@ function Cart() {
     const checkAuth = async () => {
       try {
         await axios.get('/api/users/profile', { withCredentials: true })
-      } catch (error) {
+      } catch {
         navigate('/register')
       }
     }
@@ -24,34 +24,14 @@ function Cart() {
     setIsCheckingOut(true)
 
     try {
-      let customerName = 'Guest Customer'
-      let customerEmail = 'guest@example.com'
-      try {
-        const profileRes = await axios.get('/api/users/profile', { withCredentials: true })
-        customerName = profileRes.data.user.name
-        customerEmail = profileRes.data.user.email
-      } catch (err) {
-        // Proceed as guest
-      }
+      await axios.get('/api/users/profile', { withCredentials: true })
 
-      await axios.post('/api/orders/checkout', {
-        name: customerName,
-        phone: '9800000000', // Mocked as there's no input form yet
-        address: 'Kathmandu, Nepal', // Mocked as there's no input form yet
-        payment_method: 'esewa'
-      })
+      await axios.post('/api/orders/checkout', { payment_method: 'esewa' }, { withCredentials: true })
 
-      const response = await fetch('/api/payments/esewa/initiate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          totalAmount: total,
-          items: items.map(({ name, quantity }) => ({ name, quantity })),
-        }),
-      })
-      const payment = await response.json()
-
-      if (!response.ok) throw new Error(payment.message || 'Unable to start eSewa payment.')
+      const { data: payment } = await axios.post('/api/payments/esewa/initiate', {
+        totalAmount: total,
+        items: items.map(({ name, quantity }) => ({ name, quantity })),
+      }, { withCredentials: true })
 
       const form = document.createElement('form')
       form.method = 'POST'
@@ -66,7 +46,7 @@ function Cart() {
       document.body.appendChild(form)
       form.submit()
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.response?.data?.message || error.message || 'Unable to place your order.')
       setIsCheckingOut(false)
     }
   }
@@ -93,10 +73,10 @@ function Cart() {
           <div className='mt-10 grid gap-8 lg:grid-cols-[1fr_320px]'>
             <div className='grid gap-4'>
               {items.map((item) => (
-                <article key={item.name} className='flex items-center gap-4 rounded-3xl border border-orange-200 bg-white p-4 shadow-sm sm:p-5'>
+                <article key={String(item.foodId)} className='flex items-center gap-4 rounded-3xl border border-orange-200 bg-white p-4 shadow-sm sm:p-5'>
                   <span className='flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-200 to-amber-300 text-4xl' role='img' aria-label={item.name}>{item.emoji}</span>
                   <div className='min-w-0 flex-1'><h2 className='truncate text-lg font-black'>{item.name}</h2><p className='mt-1 text-sm font-semibold text-emerald-600'>{item.price} each</p></div>
-                  <div className='flex items-center gap-3'><button type='button' onClick={() => updateItem(item.name, -1)} className='flex h-8 w-8 items-center justify-center rounded-full border border-orange-200 font-bold text-orange-700 hover:bg-orange-50' aria-label={`Remove one ${item.name}`}>−</button><span className='w-5 text-center font-black'>{item.quantity}</span><button type='button' onClick={() => updateItem(item.name, 1)} className='flex h-8 w-8 items-center justify-center rounded-full bg-orange-600 font-bold text-white hover:bg-orange-700' aria-label={`Add one ${item.name}`}>+</button></div>
+                  <div className='flex items-center gap-3'><button type='button' onClick={() => updateItem(item.foodId, -1)} className='flex h-8 w-8 items-center justify-center rounded-full border border-orange-200 font-bold text-orange-700 hover:bg-orange-50' aria-label={`Remove one ${item.name}`}>−</button><span className='w-5 text-center font-black'>{item.quantity}</span><button type='button' onClick={() => updateItem(item.foodId, 1)} className='flex h-8 w-8 items-center justify-center rounded-full bg-orange-600 font-bold text-white hover:bg-orange-700' aria-label={`Add one ${item.name}`}>+</button></div>
                 </article>
               ))}
             </div>

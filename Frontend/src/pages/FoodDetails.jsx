@@ -32,20 +32,17 @@ function FoodDetails() {
   }
 
   const name = food.name
-  const description = food.description
   const price = `रु ${food.price.toLocaleString()}`
   const details = food.description
 
-  const handleAddToCart = () => {
-    addToCart({
-      foodId: food._id,
-      name,
-      description,
-      price,
-      image: food.image,
-    })
-    setIsAdded(true)
-    window.setTimeout(() => setIsAdded(false), 1200)
+  const handleAddToCart = async () => {
+    try {
+      await addToCart({ foodId: food._id })
+      setIsAdded(true)
+      window.setTimeout(() => setIsAdded(false), 1200)
+    } catch {
+      // CartContext handles authentication redirects. Do not show a false success state.
+    }
   }
 
   return (

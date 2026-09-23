@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
@@ -27,6 +27,22 @@ function AddProduct() {
     description: editingFood.description || '',
   } : emptyForm)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [categories, setCategories] = useState([])
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true)
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await axios.get('/api/categories')
+        setCategories(response.data.categories || [])
+      } catch {
+        toast.error('Unable to load categories.')
+      } finally {
+        setIsLoadingCategories(false)
+      }
+    }
+    loadCategories()
+  }, [])
 
   const handleChange = (event) => {
     const { name, value, files } = event.target
@@ -77,7 +93,11 @@ function AddProduct() {
           </label>
           <label className='text-sm font-semibold text-orange-950'>
             Category
-            <input type='text' name='category' value={formData.category} onChange={handleChange} required placeholder='e.g. Indian Cuisine' className='mt-2 w-full rounded-xl border border-orange-200 bg-white px-4 py-3 font-normal outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200' />
+            <select name='category' value={formData.category} onChange={handleChange} required disabled={isLoadingCategories || categories.length === 0} className='mt-2 w-full rounded-xl border border-orange-200 bg-white px-4 py-3 font-normal outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 disabled:cursor-not-allowed disabled:bg-orange-100'>
+              <option value=''>{isLoadingCategories ? 'Loading categories...' : categories.length ? 'Select a category' : 'Create a category first'}</option>
+              {categories.map((category) => <option key={category._id} value={category.name}>{category.name}</option>)}
+            </select>
+            {!isLoadingCategories && categories.length === 0 && <Link to='/admin/categories' className='mt-2 inline-block text-xs font-bold text-orange-700 underline'>Manage categories</Link>}
           </label>
           <label className='text-sm font-semibold text-orange-950'>
             Price

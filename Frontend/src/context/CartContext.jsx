@@ -12,68 +12,68 @@ function CartProvider({ children }) {
       try {
         const response = await axios.get('/api/orders/cart', { withCredentials: true })
         if (response.data.cart && response.data.cart.items) {
-          setItems(response.data.cart.items.map(item => ({
-            ...item,
-            emoji: '🍽️' // Placeholder emoji
-          })))
+          setItems(response.data.cart.items.map((item) => ({ ...item, emoji: '🍽️' })))
         }
       } catch (error) {
+        setItems([])
         console.error('Error fetching cart:', error)
       }
     }
     fetchCart()
+    window.addEventListener('user-login', fetchCart)
+    const clearCart = () => setItems([])
+    window.addEventListener('user-logout', clearCart)
+
+    return () => {
+      window.removeEventListener('user-login', fetchCart)
+      window.removeEventListener('user-logout', clearCart)
+    }
   }, [])
 
-  async function addToCart(item) {
-    // Optimistic update
-    setItems((currentItems) => {
-      const existingItem = currentItems.find((currentItem) => currentItem.name === item.name)
-      if (existingItem) {
-        return currentItems.map((currentItem) => currentItem.name === item.name
-          ? { ...currentItem, quantity: currentItem.quantity + 1 }
-          : currentItem)
-      }
-      return [...currentItems, { ...item, quantity: 1 }]
-    })
+  const applyCart = (cart) => {
+    setItems((cart?.items || []).map((cartItem) => ({ ...cartItem, emoji: '🍽️' })))
+  }
 
+  async function addToCart(item) {
     try {
-      await axios.post('/api/orders/cart/add', { foodId: item.foodId }, { withCredentials: true })
+      const response = await axios.post('/api/orders/cart/add', { foodId: item.foodId }, { withCredentials: true })
+      applyCart(response.data.cart)
+      return response.data.cart
     } catch (error) {
       console.error('Error adding to backend cart:', error)
       if (error.response?.status === 401) {
         navigate('/register')
       }
-      // Ideally rollback state here
+      throw error
     }
   }
 
-  async function updateItem(name, amount) {
-    const itemToUpdate = items.find(i => i.name === name);
+  async function updateItem(foodId, amount) {
+    const itemToUpdate = items.find((item) => String(item.foodId) === String(foodId))
     if (!itemToUpdate) return;
 
-    // Optimistic update
-    setItems((currentItems) => currentItems
-      .map((item) => item.name === name ? { ...item, quantity: item.quantity + amount } : item)
-      .filter((item) => item.quantity > 0))
-
     try {
+      let response
       if (amount > 0) {
-        await axios.post('/api/orders/cart/add', { foodId: itemToUpdate.foodId }, { withCredentials: true })
+        response = await axios.post('/api/orders/cart/add', { foodId: itemToUpdate.foodId }, { withCredentials: true })
       } else {
-        await axios.post('/api/orders/cart/remove', { foodId: itemToUpdate.foodId }, { withCredentials: true })
+        response = await axios.post('/api/orders/cart/remove', { foodId: itemToUpdate.foodId }, { withCredentials: true })
       }
+      applyCart(response.data.cart)
+      return response.data.cart
     } catch (error) {
       console.error('Error updating backend cart:', error)
       if (error.response?.status === 401) {
         navigate('/register')
       }
+      throw error
     }
   }
 
   const itemCount = items.reduce((total, item) => total + item.quantity, 0)
   const total = items.reduce((sum, item) => {
-    const price = typeof item.price === 'string' ? Number.parseFloat(item.price.replace('रु ', '').replace(/,/g, '')) : item.price;
-    return sum + price * item.quantity
+    const price = Number(item.price)
+    return sum + (Number.isFinite(price) ? price : 0) * item.quantity
   }, 0)
 
   return (
