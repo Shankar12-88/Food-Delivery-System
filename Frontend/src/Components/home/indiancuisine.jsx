@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import useCart from '../../context/useCart.js';
 import axios from "axios";
 
 const IndianCuisine = ({ category }) => {
@@ -32,9 +33,15 @@ const IndianCuisine = ({ category }) => {
         };
     }, [category]);
 
-    const handleAddToCart = (dish) => {
-        setSentItem(dish._id);
-        window.setTimeout(() => setSentItem(""), 1200);
+    const { addToCart } = useCart();
+    const handleAddToCart = async (dish) => {
+        try {
+            await addToCart({ foodId: dish._id });
+            setSentItem(dish._id);
+            window.setTimeout(() => setSentItem(""), 1200);
+        } catch (e) {
+            console.error('Add to cart failed', e);
+        }
     };
 
     return (

@@ -31,11 +31,6 @@ const foods = new mongoose.Schema({
         trim: true,
     },
 
-    image: {
-        type: String,
-        trim: true,
-    },
-
     isAvailable: {
         type: Boolean,
         default: true,
@@ -48,6 +43,7 @@ const foods = new mongoose.Schema({
     },
     image: {
         type: String,
+        trim: true,
     }
 
 });

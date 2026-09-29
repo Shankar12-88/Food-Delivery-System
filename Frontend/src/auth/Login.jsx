@@ -55,7 +55,7 @@ function Login({  onAuthenticated }) {
           <div>
             <button type='button' onClick={() => navigate('/')} className='flex items-center gap-3 text-left'>
               <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-orange-400'>
-                <img src='/bhojExpress(1).jpg' alt='Bhoj Express logo' className='h-full w-full rounded-full object-contain' />
+                <img src='images/bhojExpress.jpg' alt='Bhoj Express logo' className='h-full w-full rounded-full object-contain' />
               </div>
               <span className='text-xl font-bold'>Bhoj Express</span>
             </button>

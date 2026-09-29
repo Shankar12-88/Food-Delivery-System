@@ -1,8 +1,8 @@
 import HeroSlide from "../Components/home/HeroSlide.jsx";
-import DeliveryAndRating from "../Components/home/DeliveryAndRating.jsx";
 import NepaliCuisine from "../Components/home/nepalicuisine.jsx";
 import IndianCuisine from "../Components/home/indiancuisine.jsx";
 import FindYourFlavor from "../Components/home/FindYourFlavor.jsx";
+import DeliveryAndRating from "../Components/home/DeliveryAndRating.jsx";
 import TheCrowdFav from "../Components/home/TheCrowdFav.jsx";
 import FromKitchenToTable from "../Components/home/FromKitchenToTable.jsx";
 import KindWords from "../Components/home/KindWords.jsx";
@@ -17,8 +17,6 @@ function Home() {
 
       <HeroSlide />
 
-      <DeliveryAndRating />
-
       <FindYourFlavor />
 
       <IndianCuisine category={"Indian Cuisine"} />
@@ -28,6 +26,8 @@ function Home() {
       <NepaliCuisine category={"Nepali Cuisine"} />
 
       <IndianCuisine category={"Snacks"} />
+
+      <DeliveryAndRating />
 
       <FromKitchenToTable />
 

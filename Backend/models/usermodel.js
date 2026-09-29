@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt'
 import mongoose from 'mongoose'
 
 const userSchema = new mongoose.Schema(
@@ -26,6 +25,11 @@ const userSchema = new mongoose.Schema(
          lowercase: true,
          unique: true
       },
+      // avatar / profile picture (Cloudinary URL)
+      avatar: {
+         type: String,
+         default: ''
+      },
       password: {
          type: String,
          required: true,
@@ -35,7 +39,15 @@ const userSchema = new mongoose.Schema(
          type: String,
          enum: ["admin", "user"],
          default: "user"
-      }
+      },
+      emailVerified: {
+         type: Boolean,
+         default: true
+      },
+      // OTP fields for profile-update confirmation
+      profileUpdateOtpHash:      { type: String, select: false },
+      profileUpdateOtpExpiresAt: { type: Date,   select: false },
+      profileUpdateOtpAttempts:  { type: Number, default: 0, select: false },
    },
    { timestamps: true },
 )

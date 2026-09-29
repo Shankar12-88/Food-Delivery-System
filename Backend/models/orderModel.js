@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const orderItemSchema = new mongoose.Schema({
     foodId: {
@@ -28,14 +28,20 @@ const orderSchema = new mongoose.Schema({
         unique: true
     },
     user: {
-        type: String, // Can be user email, guest ID, or user Object ID
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     name: {
-        type: String, // Customer name (optional for cart phase)
+        type: String,
     },
     phone: {
         type: String,
+    },
+    email: {
+        type: String,
+        trim: true,
+        lowercase: true,
     },
     address: {
         type: String,
@@ -43,11 +49,12 @@ const orderSchema = new mongoose.Schema({
     payment_method: {
         type: String,
         enum: ['esewa', 'khalti', 'cash'],
+        default: 'cash'
     },
     status: {
         type: String,
-        enum: ['Cart', 'Pending', 'Delivered', 'Cancelled'],
-        default: 'Cart'
+        enum: ['Pending', 'Accepted', 'Preparing', 'Packing', 'On route', 'Delivered', 'Cancelled'],
+        default: 'Pending'
     },
     items: [orderItemSchema],
     total: {
@@ -55,6 +62,6 @@ const orderSchema = new mongoose.Schema({
         required: true,
         default: 0
     }
-}, { timestamps: true })
+}, { timestamps: true });
 
-export const Order = mongoose.model('Order', orderSchema)
+export const Order = mongoose.model('Order', orderSchema);

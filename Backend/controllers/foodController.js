@@ -1,4 +1,5 @@
 import { foodItems } from "../models/foodModel.js";
+import { Category } from '../models/categoryModel.js';
 import { uploadOnCloudinary } from "../middlewares/cloudinary.js"
 
 const foodItem = async (req, res) => {
@@ -28,7 +29,12 @@ const foodItem = async (req, res) => {
             });
         }
 
-        const localFilePath = req.file.path;
+        const selectedCategory = await Category.findOne({ name: category.trim() });
+        if (!selectedCategory) {
+            return res.status(400).json({ message: 'Please select a valid category' });
+        }
+
+        const localFilePath = req.file?.path;
         if (!localFilePath) {
             return res.status(404).json({
                 message: "Unable to upload file in cloudinary"
@@ -89,6 +95,11 @@ const updateFood = async (req, res) => {
         const { name, description, price, stock, category, preparationTime } = req.body;
         const updates = { name, description, price, stock, category, preparationTime };
 
+        if (category) {
+            const selectedCategory = await Category.findOne({ name: category.trim() });
+            if (!selectedCategory) return res.status(400).json({ message: 'Please select a valid category' });
+        }
+
         if (req.file) {
             updates.image = await uploadOnCloudinary(req.file.path);
         }
@@ -124,9 +135,30 @@ const deleteFood = async (req, res) => {
     }
 };
 
+const getbycategory = async (req, res) => {
+    try {
+        const category = await foodItems.find({category: req.params.category}).limit(5);
+        if (!category) {
+            return res.status(404).json({
+                message: "No such category exist"
+            })
+        }
+        return res.status(201).json({
+            message: "Food items found",
+            data: category
+        })
+    } catch (error) {
+        console.error("Error finding category", error);
+        return res.status(404).json({
+            message: "Couldnot get food item", error
+        })
+    }
+}
+
 export {
     foodItem,
     getFoods,
     updateFood,
-    deleteFood
+    deleteFood,
+    getbycategory
 };

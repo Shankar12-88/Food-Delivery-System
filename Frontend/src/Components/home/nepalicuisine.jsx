@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
+import useCart from '../../context/useCart.js';
 
 const NepaliCuisine = ({ category }) => {
     const [dishes, setDishes] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [sentItem, setSentItem] = useState("");
+    const { addToCart } = useCart();
 
     useEffect(() => {
         let ignore = false;
@@ -32,9 +34,14 @@ const NepaliCuisine = ({ category }) => {
         };
     }, [category]);
 
-    const handleAddToCart = (dish) => {
-        setSentItem(dish._id);
-        window.setTimeout(() => setSentItem(""), 1200);
+    const handleAddToCart = async (dish) => {
+        try {
+            await addToCart({ foodId: dish._id });
+            setSentItem(dish._id);
+            window.setTimeout(() => setSentItem(""), 1200);
+        } catch (e) {
+            console.error('Add to cart failed', e);
+        }
     };
 
     return (

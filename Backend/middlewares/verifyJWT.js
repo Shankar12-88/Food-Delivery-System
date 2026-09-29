@@ -3,13 +3,17 @@ import { User } from '../models/usermodel.js';
 
 
 const verifyJWT = async(req, res, next) => {
-    const token = req.cookies.AccessToken|| req.headers['Authorization']?.replace('Bearer ', '');
+    const token = req.cookies?.AccessToken || req.header('Authorization')?.replace('Bearer ', '') || req.headers?.authorization?.replace('Bearer ', '');
     if(!token) {
         return res.status(401).json({ message: 'Access token is missing' });
-
     }
 
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    let decodedToken;
+    try {
+        decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid access token' });
+    }
     if(!decodedToken) {
         return res.status(401).json({ message: 'Invalid access token' });
     }

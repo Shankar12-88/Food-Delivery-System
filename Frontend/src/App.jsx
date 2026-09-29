@@ -1,6 +1,5 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import axios from 'axios'
-
 import AdminLayout from './admin/AdminLayout.jsx'
 import Dashboard from './admin/Dashboard.jsx'
 import Orders from './admin/Orders.jsx'
@@ -22,7 +21,11 @@ import FoodDetails from './pages/FoodDetails.jsx'
 import Offers from './pages/Offers.jsx'
 import Register from './auth/Register.jsx'
 import Profile from './pages/Profile.jsx'
+import MyOrders from './pages/MyOrders.jsx'
+import UserChangePassword from './pages/UserChangePassword.jsx'
 import { CartProvider } from './context/CartContext.jsx'
+import ChangePassword from './admin/ChangePassword.jsx'
+import EditAdminProfile from './admin/EditAdminProfile.jsx'
 
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 
@@ -44,6 +47,7 @@ function App() {
     <BrowserRouter>
       <CartProvider>
         <Routes>
+          
           <Route element={<MainLayout />}>
             <Route path='/' element={<Home />} />
             <Route path='/menu' element={<Menu />} />
@@ -55,7 +59,10 @@ function App() {
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
             <Route path='/profile' element={<Profile />} />
+            <Route path='/my-orders' element={<MyOrders />} />
+            <Route path='/change-password' element={<UserChangePassword />} />
           </Route>
+          
           <Route path='/admin' element={<AdminLayout />}>
             <Route index element={<Navigate to='dashboard' replace />} />
             <Route path='dashboard' element={<Dashboard />} />
@@ -65,8 +72,11 @@ function App() {
             <Route path='administrators/add' element={<CreateAdmin />} />
             <Route path='orders' element={<Orders />} />
             <Route path='users' element={<Users />} />
+            <Route path='/admin/settings/changepassword' element={<ChangePassword />} />
+            <Route path='/admin/settings/editprofile' element={<EditAdminProfile />} />
             <Route path='*' element={<NotFound />} />
           </Route>
+
         </Routes>
       </CartProvider>
     </BrowserRouter>

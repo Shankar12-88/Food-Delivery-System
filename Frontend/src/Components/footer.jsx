@@ -28,7 +28,7 @@ function Footer() {
           <Link to='/' onClick={scrollToTop} className='flex items-center gap-3' aria-label='Bhoj Express home'>
             <div className='flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-orange-400'>
               <img
-                src='/bhojExpress(1).jpg'
+                src='images/bhojExpress.jpg'
                 alt='Bhoj Express logo'
                 className='h-full w-full rounded-full object-contain'
               />
