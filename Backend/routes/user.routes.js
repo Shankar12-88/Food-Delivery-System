@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import multer from 'multer'
+import os from 'os'
 import {
     login,
     register,
@@ -16,7 +17,7 @@ import verifyJWT from '../middlewares/verifyJWT.js'
 import verifyAdmin from '../middlewares/adminVerifyJWT.js'
 
 const userRouter = Router()
-const upload = multer({ dest: 'uploads/' })
+const upload = multer({ dest: os.tmpdir() })
 
 userRouter.post('/register', upload.single('profile'), register)
 userRouter.post('/verify-registration-email', verifyRegistrationEmail)
