@@ -28,8 +28,8 @@ function Register() {
 
     try {
       const response = await axios.post('/api/users/register', userData)
-      setVerificationEmail(response.data.email || userData.email)
-      toast.success('A verification code was sent to your email.', { id: 'register-success' })
+      toast.success('Registration successful. You can sign in now.', { id: 'register-success' })
+      navigate('/login')
 
     } catch (error) {
       console.error(error);

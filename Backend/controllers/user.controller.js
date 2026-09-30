@@ -31,24 +31,19 @@ const register = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
-        const otp = createEmailOtp()
-        const userData = { name, address, phone, email: email.toLowerCase(), password: hashedPassword, otpHash: otp.hash, otpExpiresAt: otp.expiresAt, otpAttempts: 0 }
-        const pendingRegistration = await PendingRegistration.findOneAndUpdate(
-            { email: userData.email },
-            userData,
-            { new: true, upsert: true, runValidators: true }
-        )
-
-        try {
-            await sendVerificationEmail({ email: pendingRegistration.email, name: pendingRegistration.name, code: otp.code })
-        } catch (emailError) {
-            await PendingRegistration.findByIdAndDelete(pendingRegistration._id)
-            throw emailError
-        }
+        
+        const user = await User.create({
+            name,
+            address,
+            phone,
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            emailVerified: true
+        });
 
         res.status(201).json({
-            message: 'Verification code sent to your email',
-            email: pendingRegistration.email,
+            message: 'Registration successful',
+            user: { id: user._id, name: user.name, email: user.email, role: user.role }
         })
     } catch (error) {
         if (error.name === 'ValidationError') {

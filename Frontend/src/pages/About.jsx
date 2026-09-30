@@ -20,7 +20,7 @@ function About({ onHome, onContact }) {
           <div className="relative rounded-[2rem] bg-gradient-to-br from-orange-500 to-orange-700 p-10 text-center shadow-2xl shadow-orange-900/50 transform transition duration-500 hover:scale-[1.02]">
             <div className="mx-auto flex h-48 w-48 items-center justify-center overflow-hidden rounded-full bg-white ring-8 ring-white/20 shadow-xl">
               <img
-                src="/bhojExpress(1).jpg"
+                src="images/bhojExpress.jpg"
                 alt="Bhoj Express logo"
                 className="h-full w-full rounded-full object-contain"
               />

@@ -59,6 +59,18 @@ function Navbar() {
     fetchUserProfile()
   }, [])
 
+  useEffect(() => {
+    const handleUserLogin = (event) => {
+      setCurrentUser(event.detail)
+    }
+
+    window.addEventListener('user-login', handleUserLogin)
+
+    return () => {
+      window.removeEventListener('user-login', handleUserLogin)
+    }
+  }, [])
+
   const handleLogout = async () => {
     try {
       await axios.post(
