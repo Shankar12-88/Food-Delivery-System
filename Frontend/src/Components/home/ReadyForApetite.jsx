@@ -9,7 +9,7 @@ const ReadyForApetite = () => {
             >
                 <div className="mx-auto flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white ring-4 ring-orange-200">
                     <img
-                        src="/bhojExpress(1).jpg"
+                        src="images/bhojExpress.jpg"
                         alt="Bhoj Express"
                         className="h-full w-full rounded-full object-contain"
                     />

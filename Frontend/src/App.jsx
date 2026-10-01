@@ -20,6 +20,7 @@ import Menu from './pages/Menu.jsx'
 import FoodDetails from './pages/FoodDetails.jsx'
 import Offers from './pages/Offers.jsx'
 import Register from './auth/Register.jsx'
+import ForgotPassword from './auth/ForgotPassword.jsx'
 import Profile from './pages/Profile.jsx'
 import MyOrders from './pages/MyOrders.jsx'
 import UserChangePassword from './pages/UserChangePassword.jsx'
@@ -59,6 +60,7 @@ function App() {
             <Route path='/cart' element={<Cart />} />
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
+            <Route path='/forgot-password' element={<ForgotPassword />} />
             <Route path='/profile' element={<Profile />} />
             <Route path='/my-orders' element={<MyOrders />} />
             <Route path='/change-password' element={<UserChangePassword />} />

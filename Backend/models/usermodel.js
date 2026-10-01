@@ -45,9 +45,14 @@ const userSchema = new mongoose.Schema(
          default: true
       },
       // OTP fields for profile-update confirmation
-      profileUpdateOtpHash:      { type: String, select: false },
-      profileUpdateOtpExpiresAt: { type: Date,   select: false },
-      profileUpdateOtpAttempts:  { type: Number, default: 0, select: false },
+      profileUpdateOtpHash: { type: String, select: false },
+      profileUpdateOtpExpiresAt: { type: Date, select: false },
+      profileUpdateOtpAttempts: { type: Number, default: 0, select: false },
+
+      // OTP fields for forgot-password
+      passwordResetOtpHash: { type: String, select: false },
+      passwordResetOtpExpiresAt: { type: Date, select: false },
+      passwordResetOtpAttempts: { type: Number, default: 0, select: false },
    },
    { timestamps: true },
 )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
@@ -8,6 +8,23 @@ function Login({  onAuthenticated }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const response = await axios.get('api/users/profile', {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        });
+        if (response.data.user) {
+          navigate('/');
+        }
+      } catch (error) {
+        // Not logged in
+      }
+    };
+    checkLogin();
+  }, [navigate]);
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -70,7 +87,7 @@ function Login({  onAuthenticated }) {
           <form onSubmit={handleSubmit} className='mt-8 space-y-5'>
             <label className='block text-sm font-bold text-orange-950'>Email address<input type='email' name='email' autoComplete='email' required placeholder='you@example.com' className='mt-2 w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 font-normal outline-none transition focus:border-orange-600 focus:ring-2 focus:ring-orange-200' /></label>
             <label className='block text-sm font-bold text-orange-950'>Password<div className='relative mt-2'><input type={showPassword ? 'text' : 'password'} name='password' autoComplete='current-password' required placeholder='Enter your password' className='w-full rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 pr-12 font-normal outline-none transition focus:border-orange-600 focus:ring-2 focus:ring-orange-200' /><button type='button' onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? 'Hide password' : 'Show password'} className='absolute inset-y-0 right-0 flex w-12 items-center justify-center text-orange-600 hover:text-orange-800'><svg aria-hidden='true' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' className='h-5 w-5'><path strokeLinecap='round' strokeLinejoin='round' d='M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z' /><circle cx='12' cy='12' r='2.5' /></svg></button></div></label>
-            <div className='flex items-center justify-between text-xs'><label className='flex items-center gap-2 text-orange-950/60'><input type='checkbox' className='accent-orange-600' /> Remember me</label><a href='#forgot-password' className='font-bold text-orange-600 hover:text-orange-800'>Forgot password?</a></div>
+            <div className='flex items-center justify-between text-xs'><label className='flex items-center gap-2 text-orange-950/60'><input type='checkbox' className='accent-orange-600' /> Remember me</label><button type="button" onClick={() => navigate('/forgot-password')} className='font-bold text-orange-600 hover:text-orange-800'>Forgot password?</button></div>
             <button type='submit' disabled={isSubmitting} aria-busy={isSubmitting} className='w-full rounded-xl bg-orange-600 px-5 py-3.5 text-sm font-bold text-white hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-60'>{isSubmitting ? 'Verifying...' : 'Sign in'}</button>
           </form>
           <p className='mt-8 text-center text-sm text-orange-950/60'>New to Bhoj Express? <button type='button' onClick={() => navigate('/register')} className='font-bold text-orange-600 hover:text-orange-800'>Create an account</button></p>

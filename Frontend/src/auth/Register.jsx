@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,23 @@ function Register() {
   const [verificationEmail, setVerificationEmail] = useState('')
   const [verificationCode, setVerificationCode] = useState('')
   const formRef = useRef(null)
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const response = await axios.get('api/users/profile', {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+        });
+        if (response.data.user) {
+          navigate('/');
+        }
+      } catch (error) {
+        // Not logged in
+      }
+    };
+    checkLogin();
+  }, [navigate]);
 
   async function handleSubmit(event) {
     event.preventDefault()
